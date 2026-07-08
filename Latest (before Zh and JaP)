@@ -1,0 +1,758 @@
+<?php
+/**
+ * The header for our theme
+ *
+ * This is the template that displays all of the <head> section and everything up until <div id="content">
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+ *
+ * @package Hawkcell
+ */
+
+$hc_current_page_id    = get_queried_object_id();
+$hc_current_page_slug  = $hc_current_page_id ? get_post_field('post_name', $hc_current_page_id) : '';
+$hc_current_page_title = $hc_current_page_id ? get_the_title($hc_current_page_id) : '';
+
+$hc_current_language = defined( 'ICL_LANGUAGE_CODE' ) ? ICL_LANGUAGE_CODE : '';
+
+$hc_is_home_test_page = !is_front_page() && is_page() && ( $hc_current_page_slug === 'home-test' || $hc_current_page_title === 'Home Test' );
+$hc_is_home_test_fr_page = !is_front_page() && is_page() && ( $hc_current_page_title === 'Home Test FR' );
+
+$hc_is_veterinary_imaging_home_draft = !is_front_page() && is_page() && (
+	$hc_current_page_slug === 'veterinary-imaging-solutions-home' ||
+	$hc_current_page_title === 'Veterinary Imaging Solutions - Home'
+);
+
+/**
+ * Translation preview handling.
+ * Home ES draft keeps the home header only on page ID 4740.
+ * Home PT draft keeps the home header only on page ID 6101.
+ * Other ES/PT preview pages keep the custom language dropdown but use the normal white header.
+ * EN and FR live pages are not affected.
+ */
+$hc_request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+
+$hc_is_spanish_preview_page = (
+	$hc_current_language === 'es'
+	&& isset( $_GET['preview'] )
+	&& $_GET['preview'] === 'true'
+	&& strpos( $hc_request_uri, '/es/' ) !== false
+);
+
+$hc_is_spanish_home_draft_preview = (
+	$hc_current_language === 'es'
+	&& (int) $hc_current_page_id === 4740
+);
+
+$hc_is_portuguese_preview_page = (
+	( $hc_current_language === 'pt' || $hc_current_language === 'pt-pt' )
+	&& isset( $_GET['preview'] )
+	&& $_GET['preview'] === 'true'
+	&& ( strpos( $hc_request_uri, '/pt/' ) !== false || strpos( $hc_request_uri, '/pt-pt/' ) !== false )
+);
+
+$hc_is_portuguese_home_draft_preview = (
+	( $hc_current_language === 'pt' || $hc_current_language === 'pt-pt' )
+	&& (int) $hc_current_page_id === 6101
+);
+
+$hc_is_home_header_page = is_front_page() || $hc_is_home_test_page || $hc_is_home_test_fr_page || $hc_is_veterinary_imaging_home_draft || $hc_is_spanish_home_draft_preview || $hc_is_portuguese_home_draft_preview;
+
+$hc_show_chinese_japanese_options = true;
+
+/**
+ * Custom language dropdown on all language pages.
+ * EN, FR, ES and PT use the same language selector.
+ */
+$hc_show_custom_language_dropdown = in_array( $hc_current_language, array( 'en', 'fr', 'es', 'pt', 'pt-pt', 'zh', 'zh-hans', 'zh-hant', 'zh-cn', 'zh-tw', 'ja', 'jp' ), true );
+
+$hc_use_translated_header_compact_styles = in_array( $hc_current_language, array( 'es', 'pt', 'pt-pt' ), true );
+
+$hc_current_custom_language_label = 'EN';
+
+if ( $hc_current_language === 'fr' ) {
+	$hc_current_custom_language_label = 'FR';
+} elseif ( $hc_current_language === 'es' ) {
+	$hc_current_custom_language_label = 'ES';
+} elseif ( $hc_current_language === 'pt' || $hc_current_language === 'pt-pt' ) {
+	$hc_current_custom_language_label = 'PT';
+} elseif ( $hc_show_chinese_japanese_options && in_array( $hc_current_language, array( 'zh', 'zh-hans', 'zh-hant', 'zh-cn', 'zh-tw' ), true ) ) {
+	$hc_current_custom_language_label = 'ZH';
+} elseif ( $hc_show_chinese_japanese_options && ( $hc_current_language === 'ja' || $hc_current_language === 'jp' ) ) {
+	$hc_current_custom_language_label = 'JA';
+}
+
+$hc_pt_language_code = 'pt-pt';
+$hc_zh_language_code = 'zh-hans';
+$hc_ja_language_code = 'ja';
+$hc_zh_ja_holding_url = 'https://hawkcell.com/wp-admin/post.php?post=7429&action=edit&lang=zh';
+
+if ( function_exists( 'icl_get_languages' ) ) {
+	$hc_wpml_languages = icl_get_languages( 'skip_missing=0&orderby=code' );
+
+	if ( isset( $hc_wpml_languages['pt'] ) ) {
+		$hc_pt_language_code = 'pt';
+	} elseif ( isset( $hc_wpml_languages['pt-pt'] ) ) {
+		$hc_pt_language_code = 'pt-pt';
+	}
+
+	if ( isset( $hc_wpml_languages['zh'] ) ) {
+		$hc_zh_language_code = 'zh';
+	} elseif ( isset( $hc_wpml_languages['zh-hans'] ) ) {
+		$hc_zh_language_code = 'zh-hans';
+	} elseif ( isset( $hc_wpml_languages['zh-hant'] ) ) {
+		$hc_zh_language_code = 'zh-hant';
+	} elseif ( isset( $hc_wpml_languages['zh-cn'] ) ) {
+		$hc_zh_language_code = 'zh-cn';
+	} elseif ( isset( $hc_wpml_languages['zh-tw'] ) ) {
+		$hc_zh_language_code = 'zh-tw';
+	}
+
+	if ( isset( $hc_wpml_languages['ja'] ) ) {
+		$hc_ja_language_code = 'ja';
+	} elseif ( isset( $hc_wpml_languages['jp'] ) ) {
+		$hc_ja_language_code = 'jp';
+	}
+}
+
+$hc_wpml_current_page_languages = array();
+
+if ( function_exists( 'icl_get_languages' ) ) {
+	$hc_wpml_current_page_languages = icl_get_languages( 'skip_missing=0&orderby=code' );
+}
+
+$hc_get_wpml_language_url = function( $target_language_code ) use ( $hc_wpml_current_page_languages ) {
+	if ( isset( $hc_wpml_current_page_languages[ $target_language_code ]['url'] ) && ! empty( $hc_wpml_current_page_languages[ $target_language_code ]['url'] ) ) {
+		return $hc_wpml_current_page_languages[ $target_language_code ]['url'];
+	}
+
+	return apply_filters( 'wpml_permalink', home_url( '/' ), $target_language_code );
+};
+
+$hc_language_dropdown_items = array(
+	array(
+		'code'   => 'EN',
+		'name'   => 'English',
+		'url'    => $hc_get_wpml_language_url( 'en' ),
+		'active' => $hc_current_language === 'en',
+	),
+	array(
+		'code'   => 'FR',
+		'name'   => 'Français',
+		'url'    => $hc_get_wpml_language_url( 'fr' ),
+		'active' => $hc_current_language === 'fr',
+	),
+	array(
+		'code'   => 'ES',
+		'name'   => 'Español',
+		'url'    => $hc_get_wpml_language_url( 'es' ),
+		'active' => $hc_current_language === 'es',
+	),
+	array(
+		'code'   => 'PT',
+		'name'   => 'Português',
+		'url'    => $hc_get_wpml_language_url( $hc_pt_language_code ),
+		'active' => $hc_current_language === $hc_pt_language_code || $hc_current_language === 'pt',
+	),
+);
+
+if ( $hc_show_chinese_japanese_options ) {
+	$hc_language_dropdown_items[] = array(
+		'code'   => 'ZH',
+		'name'   => '中文',
+		'url'    => $hc_get_wpml_language_url( $hc_zh_language_code ),
+		'active' => $hc_current_language === $hc_zh_language_code || in_array( $hc_current_language, array( 'zh', 'zh-hans', 'zh-hant', 'zh-cn', 'zh-tw' ), true ),
+	);
+
+	$hc_language_dropdown_items[] = array(
+		'code'   => 'JA',
+		'name'   => '日本語',
+		'url'    => $hc_get_wpml_language_url( $hc_ja_language_code ),
+		'active' => $hc_current_language === $hc_ja_language_code || $hc_current_language === 'ja' || $hc_current_language === 'jp',
+	);
+}
+
+?>
+<!doctype html>
+<html <?php language_attributes(); ?>>
+<head>
+
+	<!-- Google Tag Manager -->
+	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-NVJCR7G2');</script>
+	<!-- End Google Tag Manager -->
+
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500&display=swap" rel="stylesheet">
+
+	<link href="<?php echo get_stylesheet_directory_uri(); ?>/css/temp.css" rel="stylesheet">
+
+	<link rel="icon" type="image/png" href="https://hawkcell.com/wp-content/uploads/2024/10/cropped-LOGO_INSTITUTIONNEL_RVB.png" sizes="512x512" />
+	<link rel="apple-touch-icon" href="https://hawkcell.com/wp-content/uploads/2024/10/cropped-LOGO_INSTITUTIONNEL_RVB.png" />
+	<meta name="apple-mobile-web-app-title" content="HawkCell" />
+
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+
+	<style>
+		.wpml-ls-item-es,
+		.wpml-ls-item-es *,
+		.wpml-ls-native[lang="es"],
+		.wpml-ls-display[lang="es"] {
+			display: none !important;
+		}
+
+		.wpml-ls-item-pt,
+		.wpml-ls-item-pt *,
+		.wpml-ls-item-pt-pt,
+		.wpml-ls-item-pt-pt *,
+		.wpml-ls-item-pt-br,
+		.wpml-ls-item-pt-br *,
+		.wpml-ls-native[lang="pt"],
+		.wpml-ls-display[lang="pt"],
+		.wpml-ls-native[lang="pt-pt"],
+		.wpml-ls-display[lang="pt-pt"],
+		.wpml-ls-native[lang="pt-br"],
+		.wpml-ls-display[lang="pt-br"] {
+			display: none !important;
+		}
+
+		#masthead .hc-header-cta,
+		#masthead .hc-header-cta:visited {
+			background-color: #ffffff !important;
+			color: #000000 !important;
+			border-color: #000000 !important;
+			font-size: 13px !important;
+			line-height: 1 !important;
+			white-space: nowrap !important;
+		}
+
+		#masthead .hc-header-cta:hover,
+		#masthead .hc-header-cta:focus {
+			background-color: #000000 !important;
+			color: #ffffff !important;
+			border-color: #000000 !important;
+		}
+
+		#masthead.hc-home-header:not(.hc-header-scrolled) .hc-header-cta,
+		#masthead.hc-home-header:not(.hc-header-scrolled) .hc-header-cta:visited {
+			background-color: #ffffff !important;
+			color: #000000 !important;
+			border-color: #ffffff !important;
+		}
+
+		#masthead.hc-home-header:not(.hc-header-scrolled) .hc-header-cta:hover,
+		#masthead.hc-home-header:not(.hc-header-scrolled) .hc-header-cta:focus {
+			background-color: #ffffff !important;
+			color: #000000 !important;
+			border-color: #ffffff !important;
+		}
+
+		#masthead .hc-fr-header-cta {
+			font-size: 13px !important;
+			line-height: 1 !important;
+			letter-spacing: 0.06em !important;
+			white-space: nowrap !important;
+		}
+
+		#masthead:not(.hc-es-draft-header) #primary-menu {
+			gap: 26px !important;
+		}
+
+		#masthead:not(.hc-es-draft-header) #primary-menu > li {
+			margin-left: 0 !important;
+			margin-right: 0 !important;
+		}
+
+		#masthead:not(.hc-es-draft-header) #primary-menu > li > a {
+			font-size: 13px !important;
+			line-height: 1.1 !important;
+			white-space: nowrap !important;
+		}
+
+		@media (min-width: 1536px) {
+			#masthead:not(.hc-es-draft-header) #primary-menu > li > a {
+				font-size: 14px !important;
+			}
+		}
+
+		<?php if ( $hc_show_custom_language_dropdown ) : ?>
+			#masthead.hc-es-draft-header #primary-menu {
+				gap: 28px !important;
+			}
+
+			#masthead.hc-es-draft-header #primary-menu > li {
+				margin-left: 0 !important;
+				margin-right: 0 !important;
+			}
+
+			#masthead.hc-es-draft-header #primary-menu > li > a {
+				font-size: 12px !important;
+				letter-spacing: 0.10em !important;
+				white-space: nowrap !important;
+			}
+
+			#masthead.hc-es-draft-header .hc-header-cta {
+				font-size: 12px !important;
+				letter-spacing: 0.10em !important;
+				white-space: nowrap !important;
+				padding-left: 28px !important;
+				padding-right: 28px !important;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown {
+				position: relative;
+				display: flex;
+				align-items: center;
+				margin-right: 24px;
+				font-family: inherit;
+				transform: translateY(-1px);
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-toggle {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				background: transparent;
+				border: 0;
+				color: #ffffff !important;
+				font-size: 12px;
+				font-weight: 700;
+				line-height: 1;
+				letter-spacing: 0.10em;
+				text-transform: uppercase;
+				cursor: pointer;
+				padding: 0;
+				margin: 0;
+				height: 40px;
+			}
+
+			#masthead.hc-custom-lang-header.hc-header-scrolled .hc-lang-dropdown-toggle,
+			#masthead.hc-custom-lang-header.hc-white-header-page .hc-lang-dropdown-toggle {
+				color: #000000 !important;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-toggle::after {
+				content: "";
+				width: 7px;
+				height: 7px;
+				border-right: 1px solid currentColor;
+				border-bottom: 1px solid currentColor;
+				transform: rotate(45deg) translateY(-2px);
+				margin-left: 3px;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-menu {
+				position: absolute;
+				top: calc(100% + 16px);
+				right: 0;
+				min-width: 190px;
+				background: #ffffff !important;
+				color: #000000 !important;
+				overflow: hidden;
+				opacity: 0;
+				visibility: hidden;
+				transform: translateY(8px);
+				transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+				box-shadow: 0 18px 35px rgba(0, 0, 0, 0.18);
+				z-index: 999;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown:hover .hc-lang-dropdown-menu,
+			#masthead.hc-custom-lang-header .hc-lang-dropdown:focus-within .hc-lang-dropdown-menu {
+				opacity: 1;
+				visibility: visible;
+				transform: translateY(0);
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 14px;
+				padding: 15px 18px;
+				background: #ffffff !important;
+				color: #000000 !important;
+				font-size: 12px;
+				font-weight: 500;
+				line-height: 1;
+				letter-spacing: 0.10em;
+				text-transform: uppercase;
+				text-decoration: none;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+				white-space: nowrap;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link *,
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link span,
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link .hc-lang-code {
+				color: #000000 !important;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link:hover,
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link:focus,
+			#masthead.hc-custom-lang-header .hc-lang-dropdown-link.is-active {
+				background: #f2f2f2 !important;
+				color: #000000 !important;
+			}
+
+			#masthead.hc-custom-lang-header .hc-lang-code {
+				font-weight: 700;
+			}
+
+			@media (max-width: 1023px) {
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown {
+					display: none !important;
+				}
+
+				#masthead.hc-custom-lang-header #site-navigation.toggled .hc-mobile-lang-dropdown,
+				#masthead.hc-custom-lang-header #site-navigation.active .hc-mobile-lang-dropdown,
+				#masthead.hc-custom-lang-header #site-navigation.is-open .hc-mobile-lang-dropdown,
+				#masthead.hc-custom-lang-header #site-navigation.menu-open .hc-mobile-lang-dropdown,
+				#masthead.hc-custom-lang-header #site-navigation .menu-toggle[aria-expanded="true"] ~ .hc-mobile-lang-dropdown {
+					position: relative;
+					display: flex !important;
+					align-items: center;
+					justify-content: center;
+					width: max-content;
+					margin: 42px auto 0;
+					font-family: inherit;
+					z-index: 999;
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-toggle {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 6px;
+					background: transparent;
+					border: 0;
+					color: #ffffff !important;
+					font-size: 14px;
+					font-weight: 700;
+					line-height: 1;
+					letter-spacing: 0.10em;
+					text-transform: uppercase;
+					cursor: pointer;
+					padding: 0;
+					margin: 0;
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-toggle::after {
+					content: "";
+					width: 8px;
+					height: 8px;
+					border-right: 1px solid currentColor;
+					border-bottom: 1px solid currentColor;
+					transform: rotate(45deg) translateY(-2px);
+					margin-left: 3px;
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-menu {
+					position: absolute;
+					top: calc(100% + 16px);
+					left: 50%;
+					width: 300px;
+					background: #ffffff !important;
+					color: #000000 !important;
+					overflow: hidden;
+					opacity: 0;
+					visibility: hidden;
+					transform: translateX(-50%) translateY(8px);
+					transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+					box-shadow: 0 18px 35px rgba(0, 0, 0, 0.18);
+					z-index: 9999;
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown.is-open .hc-mobile-lang-dropdown-menu {
+					opacity: 1;
+					visibility: visible;
+					transform: translateX(-50%) translateY(0);
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					gap: 14px;
+					padding: 18px 22px;
+					background: #ffffff !important;
+					color: #000000 !important;
+					font-size: 13px;
+					font-weight: 700;
+					line-height: 1;
+					letter-spacing: 0.10em;
+					text-transform: uppercase;
+					text-decoration: none;
+					border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+					white-space: nowrap;
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link *,
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link span,
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link .hc-lang-code {
+					color: #000000 !important;
+				}
+
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link:hover,
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link:focus,
+				#masthead.hc-custom-lang-header .hc-mobile-lang-dropdown-link.is-active {
+					background: #f2f2f2 !important;
+					color: #000000 !important;
+				}
+			}
+		<?php endif; ?>
+	</style>
+
+	<?php wp_head(); ?>
+</head>
+
+<?php if ( is_page( 9 ) ) { ?>
+	<body <?php body_class('font-body text-h-black veterinarians'); ?> style="opacity:0">
+<?php } elseif ( is_page( 11 ) ) { ?>
+	<body <?php body_class('font-body text-h-black researchers'); ?> style="opacity:0">
+<?php } else { ?>
+	<body <?php body_class('font-body text-h-black'); ?> style="opacity:0">
+<?php } ?>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PSDXV63"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<?php wp_body_open(); ?>
+
+<div class="hidden lg:block custom-cursor"></div>
+
+<!-- div class="md:h-[290px] h-64 object-top bottom-[110px] lg:bottom-20 lg:pr-[330px]  py-12 lg:py-24 h-[50vh] xl:h-56 rounded-[10px] font-body text-[15px] hover:text-h-orange mb-4 mb-8 hidden lg:flex lg:flex lg:space-x-2 space-y-8 text-white visited:text-white hover:text-h-orange transition-all  2xl:text-[15px]"></div-->
+<div id="page" class="site">
+	<a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'hawkcell' ); ?></a>
+
+	<header id="masthead" class="site-header fixed w-full top-0 z-20 px-6 lg:px-20 transition-all <?php echo $hc_is_home_header_page ? 'hc-home-header' : 'hc-white-header-page'; ?> <?php echo $hc_show_custom_language_dropdown ? 'hc-custom-lang-header' : ''; ?> <?php echo $hc_use_translated_header_compact_styles ? 'hc-es-draft-header' : ''; ?>">
+		<div class="opacity-70 bg-black absolute w-full h-full top-0 left-0 z-10 hidden" data-micromodal-close></div>
+		<div class="absolute left-6 lg:left-20 right-6 lg:right-20 bottom-0">
+			<div class="h-[1px] borderline bg-white relative w-[0px]"></div>
+		</div>
+		<div class="anim flex justify-between items-center py-6 transition-all">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+				<?php if ( is_page( 9 ) ) { ?>
+					<img class="vet w-14 h-14 lg:w-auto lg:h-auto" src="<?php echo get_stylesheet_directory_uri(); ?>/images/logo-vet.svg" alt="<?php bloginfo( 'name' ); ?>" title="<?php bloginfo( 'name' ); ?>" />
+				<?php } elseif ( is_page( 11 ) ) { ?>
+					<img class="research w-14 h-14 lg:w-auto lg:h-auto" src="<?php echo get_stylesheet_directory_uri(); ?>/images/logo-research.svg" alt="<?php bloginfo( 'name' ); ?>" title="<?php bloginfo( 'name' ); ?>" />
+				<?php } else { ?>
+					<img class="light w-14 h-14 lg:w-auto lg:h-auto" src="<?php echo get_stylesheet_directory_uri(); ?>/images/logo.svg" alt="<?php bloginfo( 'name' ); ?>" title="<?php bloginfo( 'name' ); ?>" />
+					<img class="dark w-14 h-14 lg:w-auto lg:h-auto" src="<?php echo get_stylesheet_directory_uri(); ?>/images/logo-dark.svg" alt="<?php bloginfo( 'name' ); ?>" title="<?php bloginfo( 'name' ); ?>" />
+				<?php } ?>
+			</a>
+			<nav id="site-navigation" class="main-navigation text-white">
+				<button class="menu-toggle block lg:hidden" aria-controls="primary-menu" aria-expanded="false">
+					<svg class="w-8	h-8" xmlns="http://www.w3.org/2000/svg" width="86.928" height="56" viewBox="0 0 86.928 56">
+					  <path id="menu" d="M0,93.8a2.716,2.716,0,0,1,2.716-2.716H84.211a2.716,2.716,0,0,1,0,5.433H2.716A2.716,2.716,0,0,1,0,93.8Zm84.211,22.567H2.716a2.716,2.716,0,0,0,0,5.433H84.211a2.716,2.716,0,0,0,0-5.433ZM43.464,141.648H2.716a2.716,2.716,0,0,0,0,5.433H43.464a2.716,2.716,0,0,0,0-5.433Z" transform="translate(0 -91.081)" />
+					</svg>
+				</button>
+				<?php
+				wp_nav_menu(
+					array(
+						'theme_location' => 'menu-1',
+						'menu_id'        => 'primary-menu',
+						'menu_class'     => 'hidden lg:flex m-0 p-0 list-none font-title text-[13px] 2xl:text-[14px] uppercase tracking-widest',
+						'container'      => false,
+						'walker'         => new Nav_Walker_Nav_Menu()
+					)
+				);
+				?>
+
+				<?php if ( $hc_show_custom_language_dropdown ) { ?>
+					<div class="hc-mobile-lang-dropdown lg:hidden">
+						<button class="hc-mobile-lang-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+							<span class="hc-lang-code"><?php echo esc_html( $hc_current_custom_language_label ); ?></span>
+						</button>
+
+						<div class="hc-mobile-lang-dropdown-menu">
+							<?php foreach ( $hc_language_dropdown_items as $hc_language_item ) { ?>
+								<a class="hc-mobile-lang-dropdown-link <?php echo $hc_language_item['active'] ? 'is-active' : ''; ?>" href="<?php echo esc_url( $hc_language_item['url'] ); ?>">
+									<span>
+										<?php echo esc_html( $hc_language_item['name'] ); ?>
+									</span>
+									<span class="hc-lang-code"><?php echo esc_html( $hc_language_item['code'] ); ?></span>
+								</a>
+							<?php } ?>
+						</div>
+					</div>
+				<?php } ?>
+			</nav><!-- #site-navigation -->
+			<div class="items-center hidden lg:flex">
+				<?php if ( $hc_show_custom_language_dropdown ) { ?>
+					<div class="hc-lang-dropdown">
+						<button class="hc-lang-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+							<span class="hc-lang-code"><?php echo esc_html( $hc_current_custom_language_label ); ?></span>
+						</button>
+
+						<div class="hc-lang-dropdown-menu">
+							<?php foreach ( $hc_language_dropdown_items as $hc_language_item ) { ?>
+								<a class="hc-lang-dropdown-link <?php echo $hc_language_item['active'] ? 'is-active' : ''; ?>" href="<?php echo esc_url( $hc_language_item['url'] ); ?>">
+									<span>
+										<?php echo esc_html( $hc_language_item['name'] ); ?>
+									</span>
+									<span class="hc-lang-code"><?php echo esc_html( $hc_language_item['code'] ); ?></span>
+								</a>
+							<?php } ?>
+						</div>
+					</div>
+				<?php } else { ?>
+					<?php $activatelang = get_field('activate_language_switcher','option');
+					if( $activatelang && in_array('activate', $activatelang) ) { ?>
+						<div class="items-center hidden lg:flex">
+							<?php do_action('wpml_add_language_selector'); ?>
+						</div>
+					<?php } ?>
+				<?php } ?>
+
+				<?php
+				$current_page_id    = $hc_current_page_id;
+				$current_page_slug  = $hc_current_page_slug;
+				$current_page_title = $hc_current_page_title;
+
+				$current_language = $hc_current_language;
+
+				$is_home_test_page = $hc_is_home_test_page;
+				$is_home_test_fr_page = $hc_is_home_test_fr_page;
+
+				// New draft page only
+				$is_veterinary_imaging_home_draft = $hc_is_veterinary_imaging_home_draft;
+
+				if ( $is_veterinary_imaging_home_draft ) {
+					if ( $current_language === 'fr' ) {
+						$header_button_url = 'https://meetings-eu1.hubspot.com/emilie-chomienne/fr-prenez-rdv';
+						$header_button_text = 'RÉSERVER UNE DÉMO GRATUITE';
+					} elseif ( $current_language === 'es' ) {
+						$header_button_url = 'https://hawkcell.com/contact/';
+						$header_button_text = 'PROGRAME UNA DEMO GRATUITA';
+					} elseif ( $current_language === 'pt' || $current_language === 'pt-pt' ) {
+						$header_button_url = 'https://hawkcell.com/contact/';
+						$header_button_text = 'Agende uma demo grátis';
+					} elseif ( $hc_show_chinese_japanese_options && in_array( $current_language, array( 'zh', 'zh-hans', 'zh-hant', 'zh-cn', 'zh-tw' ), true ) ) {
+						$header_button_url = 'https://meetings-eu1.hubspot.com/meetings/hawkcell-antonin/agenda?uuid=600df624-2034-447c-917b-c7afc5a8a64c';
+						$header_button_text = '预约免费演示';
+					} elseif ( $hc_show_chinese_japanese_options && ( $current_language === 'ja' || $current_language === 'jp' ) ) {
+						$header_button_url = 'https://meetings-eu1.hubspot.com/meetings/hawkcell-antonin/agenda?uuid=600df624-2034-447c-917b-c7afc5a8a64c';
+						$header_button_text = '無料デモを予約';
+					} else {
+						$header_button_url = 'https://meetings-eu1.hubspot.com/meetings/hawkcell-antonin/agenda?uuid=600df624-2034-447c-917b-c7afc5a8a64c';
+						$header_button_text = 'SCHEDULE A FREE DEMO';
+					}
+				} elseif ( $is_home_test_fr_page ) {
+					$header_button_url = 'https://meetings-eu1.hubspot.com/emilie-chomienne/fr-prenez-rdv';
+					$header_button_text = 'RÉSERVER UNE DÉMO GRATUITE';
+				} elseif ( $is_home_test_page ) {
+					$header_button_url = 'https://meetings-eu1.hubspot.com/meetings/hawkcell-antonin/agenda?uuid=600df624-2034-447c-917b-c7afc5a8a64c';
+					$header_button_text = 'SCHEDULE A FREE DEMO';
+				} else {
+					$header_button_url = get_field( 'header_button_url', 'options' );
+
+					if ( $current_language === 'fr' ) {
+						$header_button_text = 'RÉSERVER UNE DÉMO GRATUITE';
+					} elseif ( $current_language === 'es' ) {
+						$header_button_text = 'PROGRAME UNA DEMO GRATUITA';
+					} elseif ( $current_language === 'pt' || $current_language === 'pt-pt' ) {
+						$header_button_text = 'Agende uma demo grátis';
+					} elseif ( $hc_show_chinese_japanese_options && in_array( $current_language, array( 'zh', 'zh-hans', 'zh-hant', 'zh-cn', 'zh-tw' ), true ) ) {
+						$header_button_text = '预约免费演示';
+					} elseif ( $hc_show_chinese_japanese_options && ( $current_language === 'ja' || $current_language === 'jp' ) ) {
+						$header_button_text = '無料デモを予約';
+					} else {
+						$header_button_url = 'https://meetings-eu1.hubspot.com/meetings/hawkcell-antonin/agenda?uuid=600df624-2034-447c-917b-c7afc5a8a64c';
+						$header_button_text = 'SCHEDULE A FREE DEMO';
+					}
+				}
+
+				$header_button_class = 'hidden xl:block btn hc-header-cta';
+
+				if ( $current_language === 'fr' ) {
+					$header_button_class .= ' hc-fr-header-cta';
+				}
+				?>
+
+				<a href="<?php echo esc_url( $header_button_url ); ?>" class="<?php echo esc_attr( $header_button_class ); ?>"><?php echo esc_html( $header_button_text ); ?></a>
+			</div>
+		</div><!-- .site-branding -->
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				var header = document.getElementById('masthead');
+
+				if (!header) {
+					return;
+				}
+
+				function updateHeaderCtaState() {
+					if (window.scrollY > 10) {
+						header.classList.add('hc-header-scrolled');
+					} else {
+						header.classList.remove('hc-header-scrolled');
+					}
+				}
+
+				updateHeaderCtaState();
+				window.addEventListener('scroll', updateHeaderCtaState);
+
+				var mobileLangDropdowns = document.querySelectorAll('.hc-mobile-lang-dropdown');
+
+				if (mobileLangDropdowns.length) {
+					mobileLangDropdowns.forEach(function (dropdown) {
+						var toggle = dropdown.querySelector('.hc-mobile-lang-dropdown-toggle');
+
+						if (!toggle) {
+							return;
+						}
+
+						toggle.addEventListener('click', function (event) {
+							event.preventDefault();
+							event.stopPropagation();
+
+							var isOpen = dropdown.classList.contains('is-open');
+
+							mobileLangDropdowns.forEach(function (item) {
+								item.classList.remove('is-open');
+
+								var itemToggle = item.querySelector('.hc-mobile-lang-dropdown-toggle');
+
+								if (itemToggle) {
+									itemToggle.setAttribute('aria-expanded', 'false');
+								}
+							});
+
+							if (!isOpen) {
+								dropdown.classList.add('is-open');
+								toggle.setAttribute('aria-expanded', 'true');
+							}
+						});
+					});
+
+					document.addEventListener('click', function (event) {
+						mobileLangDropdowns.forEach(function (dropdown) {
+							if (!dropdown.contains(event.target)) {
+								dropdown.classList.remove('is-open');
+
+								var toggle = dropdown.querySelector('.hc-mobile-lang-dropdown-toggle');
+
+								if (toggle) {
+									toggle.setAttribute('aria-expanded', 'false');
+								}
+							}
+						});
+					});
+				}
+			});
+		</script>
+	</header><!-- #masthead -->
+
+	<?php include get_template_directory() . '/bannière.php'; ?>
